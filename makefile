@@ -1,12 +1,28 @@
 # Comandos do Docker
 up:
-	docker compose up
+	docker compose up -d
+	$(MAKE) migrate
+	docker compose logs -f
 
 down:
 	docker compose down
 
 build:
-	docker compose up --build
+	docker compose up --build -d
+	$(MAKE) migrate
+	docker compose logs -f
+
+# Reconstrói as imagens do zero, sem usar cache
+rebuild:
+	docker compose build --no-cache
+	docker compose up -d
+	$(MAKE) migrate
+	docker compose logs -f
+
+# Remove containers, redes e volumes que não estão sendo usados
+clean:
+	docker compose down -v
+	docker system prune -f
 
 # Comandos do Django (Backend)
 migrate:
@@ -21,6 +37,10 @@ superuser:
 shell:
 	docker compose exec backend python manage.py shell
 
+# Atualiza o arquivo requirements.txt com o que está no container
+reqs:
+	docker compose exec backend pip freeze > backend/requirements.txt
+
 # Utilitários de Sistema
 fix-perms:
 	sudo chown -R $$USER:$$USER .
@@ -34,3 +54,4 @@ front-logs:
 
 test:
 	docker compose exec backend pytest
+
