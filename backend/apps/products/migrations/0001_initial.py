@@ -6,42 +6,85 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Nome')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Descrição')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="Nome")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Descrição"),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'verbose_name': 'Categoria',
-                'verbose_name_plural': 'Categorias',
+                "verbose_name": "Categoria",
+                "verbose_name_plural": "Categorias",
             },
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=200, verbose_name='Nome')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Descrição')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Preço')),
-                ('stock_quantity', models.PositiveIntegerField(default=0, verbose_name='Quantidade em Estoque')),
-                ('sku', models.CharField(max_length=50, unique=True, verbose_name='SKU/Código')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='products', to='products.category', verbose_name='Categoria')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, verbose_name="Nome")),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Descrição"),
+                ),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Preço"
+                    ),
+                ),
+                (
+                    "stock_quantity",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="Quantidade em Estoque"
+                    ),
+                ),
+                (
+                    "sku",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="SKU/Código"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="products",
+                        to="products.category",
+                        verbose_name="Categoria",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Produto',
-                'verbose_name_plural': 'Produtos',
+                "verbose_name": "Produto",
+                "verbose_name_plural": "Produtos",
             },
         ),
     ]

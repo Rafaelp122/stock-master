@@ -52,6 +52,13 @@ front-sh:
 front-logs:
 	docker compose logs -f frontend
 
+# Qualidade de Código
+lint:
+	docker compose exec backend ruff check .
+
+format:
+	docker compose exec backend ruff format .
+	docker compose exec backend ruff check . --fix
+
 test:
 	docker compose exec backend pytest
-

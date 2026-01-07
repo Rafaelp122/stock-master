@@ -1,0 +1,54 @@
+[tool.ruff]
+line-length = 88
+target-version = "py311" # Seus logs mostraram Python 3.11 no Docker
+exclude = [
+    ".git",
+    "__pycache__",
+    "migrations",
+    "venv",
+    ".venv",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "RUF", "UP", "DJ"]
+ignore = ["E203", "RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"settings.py" = ["F401", "F403"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.pytest.ini_options]
+# Ajustado para o caminho do StockMaster
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = [
+    "test.py", "tests.py", "test_*.py", "tests_*.py", "*_test.py", "*_tests.py"
+]
+addopts = """
+    --doctest-modules
+    --strict-markers
+    -rP
+    --ds=config.settings
+    --ignore=backend/config/wsgi.py
+    --ignore=backend/config/asgi.py
+"""
+# Removido o '-n auto' temporariamente porque, no Docker, 
+# se o banco não estiver bem isolado, testes em paralelo podem dar conflito de DB.
+# Mas se quiser testar, pode manter!
+
+[tool.coverage.run]
+relative_files = true
+branch = true
+source = ["."]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "manage.py",
+    "*/config/*", # Ajustado para sua pasta de config
+    "*/__init__.py",
+]

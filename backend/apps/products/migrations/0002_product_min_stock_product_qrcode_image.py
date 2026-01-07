@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('products', '0001_initial'),
+        ("products", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='min_stock',
+            model_name="product",
+            name="min_stock",
             field=models.PositiveIntegerField(default=5),
         ),
         migrations.AddField(
-            model_name='product',
-            name='qrcode_image',
-            field=models.ImageField(blank=True, null=True, upload_to='qrcodes/'),
+            model_name="product",
+            name="qrcode_image",
+            field=models.ImageField(blank=True, null=True, upload_to="qrcodes/"),
         ),
     ]
