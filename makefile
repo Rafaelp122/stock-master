@@ -24,3 +24,13 @@ shell:
 # Utilitários de Sistema
 fix-perms:
 	sudo chown -R $$USER:$$USER .
+
+# Frontend e Utilitários
+front-sh:
+	docker compose exec frontend sh
+
+front-logs:
+	docker compose logs -f frontend
+
+test:
+	docker compose exec backend pytest
