@@ -1,11 +1,13 @@
 services:
-  # Serviço do Backend (Django)
+  # --- BACKEND: API Django REST Framework ---
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    # O comando roda o servidor de dev do Django acessível externamente (0.0.0.0)
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
+      # Sincroniza o código da sua máquina com o container (Live Reload)
       - ./backend:/app
     ports:
       - "8000:8000"
@@ -13,7 +15,7 @@ services:
       - DEBUG=1
       - SECRET_KEY=django-insecure-troque-isso-na-producao
       - ALLOWED_HOSTS=*
-      # Configuração do Banco de Dados
+      # Variáveis que o Django usa para se conectar ao serviço 'db' abaixo
       - DB_ENGINE=django.db.backends.postgresql
       - DB_NAME=stock_db
       - DB_USER=stock_user
@@ -21,26 +23,34 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
     depends_on:
-      - db
+      db:
+        # IMPORTANTE: Não apenas inicia o 'db', mas espera ele estar "Saudável" (Healthy)
+        # Isso evita que o Django tente conectar enquanto o Postgres ainda está ligando.
+        condition: service_healthy 
   
-  # Serviço do Frontend (React)
+  # --- FRONTEND: React + Vite ---
   frontend:
     build: ./frontend
     volumes:
+      # Espelha seu código React para o container
       - ./frontend:/app
-      - /app/node_modules
+      # SHADOWING: Cria um volume isolado para as bibliotecas do container.
+      # Isso impede que o 'node_modules' da sua máquina física sobrescreva o do container.
+      - frontend_node_modules:/app/node_modules
     ports:
-      - "5173:5173"  # Porta padrão do Vite
+      - "5173:5173"
     depends_on:
       - backend
-    # Hot Reload no Linux precisa disto:
     environment:
+      # Força o Vite a observar mudanças de arquivos
+      # via 'polling' (necessário em alguns sistemas de arquivos/Docker no Linux).
       - CHOKIDAR_USEPOLLING=true
 
-  # Serviço do Banco de Dados (PostgreSQL)
+  # --- DATABASE: PostgreSQL ---
   db:
     image: postgres:15-alpine
     volumes:
+      # Volume nomeado: Se você apagar o container, seus produtos e vendas continuam salvos aqui.
       - postgres_data:/var/lib/postgresql/data/
     environment:
       - POSTGRES_DB=stock_db
@@ -48,6 +58,20 @@ services:
       - POSTGRES_PASSWORD=stock_pass
     ports:
       - "5432:5432"
+    # MECANISMO DE SEGURANÇA (Healthcheck):
+    # Garante que o serviço só seja considerado "OK" quando o banco aceitar conexões reais.
+    healthcheck:
+      # Tenta rodar o comando 'pg_isready' dentro do banco de 5 em 5 segundos.
+      test: ["CMD-SHELL", "pg_isready -U stock_user -d stock_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      # Dá 10 segundos de folga para o banco carregar os arquivos internos antes de começar os testes.
+      start_period: 10s
 
+# Definição dos volumes permanentes (não somem ao desligar o Docker)
 volumes:
+  # Onde o banco de dados mora
   postgres_data:
+  # Onde as bibliotecas do React moram (melhora a performance e isolamento)
+  frontend_node_modules:
