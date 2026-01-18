@@ -1,39 +1,39 @@
 .PHONY: help
 help:
-	@echo "============================================"
-	@echo "  Stock Master - Comandos Disponíveis"
-	@echo "============================================"
+	@echo "=========================================================================="
+	@echo "  🚀 Stock Master - Sistema de Gestão de Estoque Profissional"
+	@echo "=========================================================================="
 	@echo ""
-	@echo "📦 DOCKER"
-	@echo "  make up          - Inicia containers, migrations e exibe logs"
-	@echo "  make down        - Para todos os containers"
-	@echo "  make build       - Reconstrói e inicia containers"
-	@echo "  make rebuild     - Reconstrói sem cache"
-	@echo "  make clean       - Remove containers, redes e volumes não usados"
+	@echo "📦 DOCKER & ORQUESTRAÇÃO"
+	@echo "  make up               - Inicia containers, migrations e exibe logs"
+	@echo "  make down             - Para e remove todos os containers"
+	@echo "  make build            - Reconstrói as imagens e inicia"
+	@echo "  make rebuild          - Reconstrói as imagens do zero (sem cache)"
+	@echo "  make clean            - Limpeza total (containers, volumes, redes)"
 	@echo ""
-	@echo "🐍 BACKEND (Django)"
-	@echo "  make migrate     - Aplica migrations no banco"
-	@echo "  make makemigrations - Cria arquivos de migration"
-	@echo "  make superuser   - Cria usuário admin"
-	@echo "  make shell       - Abre shell do Django"
-	@echo "  make reqs        - Atualiza requirements.txt"
+	@echo "🐍 BACKEND (Django REST Framework)"
+	@echo "  make migrate          - Aplica migrações no banco de dados"
+	@echo "  make makemigrations   - Gera novos arquivos de migração"
+	@echo "  make superuser        - Cria usuário administrativo"
+	@echo "  make shell            - Acessa o shell interativo do Django"
+	@echo "  make reqs             - Atualiza o arquivo requirements.txt"
 	@echo ""
-	@echo "⚛️  FRONTEND (React/Vite)"
-	@echo "  make front-install - Instala dependências npm"
-	@echo "  make front-dev   - Inicia servidor de desenvolvimento"
-	@echo "  make front-build - Gera build de produção"
-	@echo "  make front-sh    - Abre shell no container"
-	@echo "  make front-logs  - Exibe logs do frontend"
+	@echo "⚛️  FRONTEND (React + Vite)"
+	@echo "  make front-install    - Instala deps (use pkg=nome para pacotes novos)"
+	@echo "  make front-dev        - Inicia o servidor local do Vite"
+	@echo "  make front-build      - Gera o build de produção"
+	@echo "  make front-sh         - Acessa o terminal dentro do container"
+	@echo "  make front-logs       - Exibe logs específicos do frontend"
 	@echo ""
-	@echo "🧹 QUALIDADE DE CÓDIGO"
-	@echo "  make lint        - Verifica erros com Ruff"
-	@echo "  make format      - Formata código automaticamente"
-	@echo "  make test        - Executa testes com pytest"
+	@echo "🧹 QUALIDADE & PADRONIZAÇÃO (ADR-010)"
+	@echo "  make lint             - Analisa o código com Ruff"
+	@echo "  make format           - Formata o código (Ruff + Prettier)"
+	@echo "  make test             - Roda a bateria de testes com Pytest"
 	@echo ""
 	@echo "🔧 UTILITÁRIOS"
-	@echo "  make fix-perms   - Corrige permissões de arquivos"
-	@echo "  make help        - Exibe esta mensagem"
-	@echo ""
+	@echo "  make fix-perms        - Corrige permissões de arquivos (Linux/macOS)"
+	@echo "  make help             - Exibe este menu de ajuda"
+	@echo "=========================================================================="
 
 # Comandos do Docker
 # Inicia os containers em background, roda migrations e exibe logs
@@ -98,9 +98,10 @@ front-sh:
 front-logs:
 	docker compose logs -f frontend
 
-# Instala as dependências do frontend (npm install)
+# Se você rodar 'make front-install', ele instala tudo.
+# Se rodar 'make front-install pkg=axios', ele instala só o axios.
 front-install:
-	docker compose exec frontend npm install
+	docker compose exec frontend npm install $(pkg)
 
 # Gera build de produção do frontend (CSS/JS otimizados na pasta dist/)
 front-build:

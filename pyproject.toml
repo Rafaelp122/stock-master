@@ -11,7 +11,7 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "RUF", "UP", "DJ"]
-ignore = ["E203", "RUF012"]
+ignore = ["E203", "RUF012", "I001"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403"]
