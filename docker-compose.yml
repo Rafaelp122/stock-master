@@ -61,13 +61,13 @@ services:
     # MECANISMO DE SEGURANÇA (Healthcheck):
     # Garante que o serviço só seja considerado "OK" quando o banco aceitar conexões reais.
     healthcheck:
-      # Tenta rodar o comando 'pg_isready' dentro do banco de 5 em 5 segundos.
+      # Tenta rodar o comando 'pg_isready' dentro do banco de 3 em 3 segundos.
       test: ["CMD-SHELL", "pg_isready -U stock_user -d stock_db"]
-      interval: 5s
+      interval: 3s
       timeout: 5s
-      retries: 5
-      # Dá 10 segundos de folga para o banco carregar os arquivos internos antes de começar os testes.
-      start_period: 10s
+      retries: 10
+      # Dá 15 segundos de folga para o banco carregar e criar o DB na primeira inicialização.
+      start_period: 15s
 
 # Definição dos volumes permanentes (não somem ao desligar o Docker)
 volumes:
