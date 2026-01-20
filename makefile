@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 .PHONY: help
 help:
 	@echo "=========================================================================="
@@ -14,8 +16,11 @@ help:
 	@echo "🐍 BACKEND (Django REST Framework)"
 	@echo "  make migrate          - Aplica migrações no banco de dados"
 	@echo "  make makemigrations   - Gera novos arquivos de migração"
+	@echo "  make db-reset         - ⚠️  APAGA banco e migrations, recria tudo do zero"
 	@echo "  make superuser        - Cria usuário administrativo"
 	@echo "  make shell            - Acessa o shell interativo do Django"
+	@echo "  make back-install     - Instala pacote no container (pkg=nome)"
+	@echo "  make back-install-local - Instala no container + venv local (pkg=nome)"
 	@echo "  make reqs             - Atualiza o arquivo requirements.txt"
 	@echo ""
 	@echo "⚛️  FRONTEND (React + Vite)"
@@ -73,6 +78,32 @@ migrate:
 makemigrations:
 	docker compose exec backend python manage.py makemigrations
 
+# ⚠️ CUIDADO: Apaga banco de dados, remove migrations e recria tudo do zero
+# Útil ao mudar Primary Keys (ex: migração para UUIDv7)
+db-reset:
+	@echo "⚠️  ATENÇÃO: Este comando vai APAGAR o banco de dados e todas as migrations!"
+	@read -p "Tem certeza? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		echo "🗑️  Parando containers..."; \
+		docker compose down -v; \
+		echo "🗑️  Removendo arquivos de migration..."; \
+		find backend/apps -path "*/migrations/*.py" -not -name "__init__.py" -delete; \
+		find backend/apps -path "*/migrations/__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true; \
+		echo "🚀 Recriando containers..."; \
+		docker compose up -d; \
+		sleep 3; \
+		echo "📝 Gerando novas migrations..."; \
+		for app in users products; do \
+			docker compose exec backend python manage.py makemigrations $$app; \
+		done; \
+		echo "✅ Aplicando migrations..."; \
+		docker compose exec backend python manage.py migrate; \
+		echo "🎉 Reset completo! Agora crie um superuser com 'make superuser'"; \
+	else \
+		echo "❌ Operação cancelada."; \
+	fi
+
 # Cria um usuário administrador para acessar o Django Admin
 superuser:
 	docker compose exec backend python manage.py createsuperuser
@@ -82,9 +113,26 @@ shell:
 	docker compose exec backend python manage.py shell
 
 # Atualiza o arquivo requirements.txt com o que está no container
-# Corrige permissões de arquivos (útil quando Docker cria arquivos como root)
 reqs:
 	docker compose exec backend pip freeze > backend/requirements.txt
+
+# Instala pacote no backend e atualiza o requirements.txt automaticamente
+# Uso: make back-install pkg="qrcode[pil] Pillow"
+back-install:
+	docker compose exec backend pip install "$(pkg)"
+	$(MAKE) reqs
+
+# Instala pacote no container + venv local (útil para autocomplete/IDE)
+# Uso: make back-install-local pkg="qrcode[pil] Pillow"
+back-install-local:
+	docker compose exec backend pip install "$(pkg)"
+	@if [ -d "venv" ]; then \
+		. venv/bin/activate && pip install "$(pkg)"; \
+		echo "✅ Pacote instalado no container e venv local"; \
+	else \
+		echo "⚠️  venv não encontrada. Instalado apenas no container."; \
+	fi
+	$(MAKE) reqs
 
 # Utilitários de Sistema
 fix-perms:
