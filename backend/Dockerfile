@@ -1,5 +1,5 @@
 # Usa uma imagem leve do Python 3.11
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Evita que o Python crie arquivos .pyc e bufferize logs
 ENV PYTHONDONTWRITEBYTECODE 1
